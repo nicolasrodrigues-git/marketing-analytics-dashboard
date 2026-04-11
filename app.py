@@ -573,6 +573,7 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════════════════════════
 render_topbar()
 
+uploaded = st.file_uploader('📂 Upload do CSV', type=["csv"], label_visibility="collapsed")
 if uploaded is None:
     st.markdown("""
     <div style="display:flex;align-items:center;justify-content:center;
