@@ -573,8 +573,7 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════════════════════════
 render_topbar()
 
-uploaded = '/home/Marcia/marketing_raw.csv'
-if False:
+if uploaded is None:
     st.markdown("""
     <div style="display:flex;align-items:center;justify-content:center;
                 min-height:60vh;flex-direction:column;gap:16px;padding:40px;">
