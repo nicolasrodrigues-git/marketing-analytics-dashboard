@@ -98,6 +98,9 @@ ACCENT5 = "#FCD34D"
 GRID    = "rgba(255,255,255,0.04)"
 CHANNELS = {"Display": ACCENT, "Mobile": ACCENT2, "Video": ACCENT4, "Social": ACCENT5, "Search": ACCENT3}
 
+# ── DEFAULT DATASET PATH ───────────────────────────────────────────────────────
+DEFAULT_PATH = "data/marketing_raw.csv"
+
 # ── HELPERS ────────────────────────────────────────────────────────────────────
 def fmt_usd(v):
     if abs(v) >= 1_000_000: return f"${v/1_000_000:.1f}M"
@@ -386,60 +389,15 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════════════════════════
 render_topbar()
 
-# ── TELA DE BOAS VINDAS ────────────────────────────────────────────────────────
-if uploaded is None:
-    st.markdown("""
-    <div style="display:flex;align-items:center;justify-content:center;
-                min-height:70vh;flex-direction:column;gap:24px;padding:40px;text-align:center;">
+# ── LOAD DATA — usa CSV fixo se nenhum arquivo for enviado ────────────────────
+if uploaded is not None:
+    df_raw = load_data(uploaded)
+else:
+    df_raw = load_data(DEFAULT_PATH)
+    st.info("Using sample dataset. Upload your own CSV to customize the analysis.")
 
-      <div style="font-family:'DM Mono',monospace;font-size:64px;font-weight:300;
-                  color:rgba(0,229,160,0.12);line-height:1;">◈</div>
-
-      <div>
-        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:700;
-                    color:#E8EDF5;margin-bottom:8px;">Marketing Analytics</div>
-        <div style="font-family:'DM Mono',monospace;font-size:11px;color:#4A5568;letter-spacing:.08em;">
-          CAMPAIGN DATASET · MAI–DEZ 2022
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:520px;width:100%;">
-        <div style="background:#111520;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px;">
-          <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:#00E5A0;">72.6k</div>
-          <div style="font-family:'DM Mono',monospace;font-size:10px;color:#4A5568;margin-top:4px;">CAMPANHAS</div>
-        </div>
-        <div style="background:#111520;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px;">
-          <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:#3D8BFF;">5</div>
-          <div style="font-family:'DM Mono',monospace;font-size:10px;color:#4A5568;margin-top:4px;">CANAIS</div>
-        </div>
-        <div style="background:#111520;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px;">
-          <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:#A78BFA;">0.11</div>
-          <div style="font-family:'DM Mono',monospace;font-size:10px;color:#4A5568;margin-top:4px;">PEARSON</div>
-        </div>
-      </div>
-
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:#4A5568;max-width:380px;line-height:1.8;">
-        Faça upload do CSV no painel lateral<br>
-        <span style="color:#8896A8;">← clique na seta no canto superior esquerdo</span>
-      </div>
-
-      <div style="background:rgba(0,229,160,0.04);border:1px solid rgba(0,229,160,0.12);
-                  border-radius:10px;padding:16px 24px;max-width:480px;text-align:left;">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;
-                    text-transform:uppercase;color:#00E5A0;margin-bottom:10px;">◈ PRINCIPAIS INSIGHTS</div>
-        <div style="font-family:'Syne',sans-serif;font-size:13px;color:#8896A8;line-height:1.9;">
-          · 10% das campanhas geram 81,7% dos cliques (Pareto)<br>
-          · Budget ↑ não garante cliques ↑ (Pearson 0,11)<br>
-          · Mobile em set/2022: menor CPC histórico ($0,13)
-        </div>
-      </div>
-
-    </div>""", unsafe_allow_html=True)
-    st.stop()
-
-# ── LOAD & PROCESS ─────────────────────────────────────────────────────────────
-df_raw = load_data(uploaded)
-df     = process_data(df_raw, ticket, cvr, meta)
+# ── PROCESS ───────────────────────────────────────────────────────────────────
+df = process_data(df_raw, ticket, cvr, meta)
 
 total_gasto   = df["media_cost_usd"].sum()
 total_cliques = df["clicks"].sum()
